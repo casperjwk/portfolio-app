@@ -1,8 +1,16 @@
 import Image from "next/image";
+import { createClient } from "@/utils/supabase/client";
 
 export default function Home({ data }) {
+  const supabase = createClient();
+
+  const getPublicURL = path => {
+    if (!path) return "";
+    const { data: publicUrlData } = supabase.storage.from("portfolio").getPublicUrl(path);
+    return publicUrlData.publicUrl;
+  };
   return (
-    <>
+    <div className="latest_portfolio">
       <div className="row intro">
         <div className="col-md-4">
           <div className="contents shadow">
@@ -24,11 +32,21 @@ export default function Home({ data }) {
         {data.map(item => (
           <div className="col-md-4" key={item.id}>
             <div className="contents shadow">
-              {/* <img src="images/latest_portfolio_01.jpg" alt="latest_portfolio_01"/> */}
+              {item.thumbnail && (
+                <div style={{ height: 209 }}>
+                  <Image
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    src={getPublicURL(item.thumbnail)}
+                    width={364}
+                    height={209}
+                    alt={item.title}
+                  />
+                </div>
+              )}
               <div className="hover_contents">
                 <div className="list_info">
                   <h3>
-                    <a href="">{item.title}</a>
+                    <a href={`/portfolio/${item.id}`}>{item.title}</a>
                     <Image
                       src="/images/portfolio_list_arrow.png"
                       width={6}
@@ -50,6 +68,6 @@ export default function Home({ data }) {
           See my full portfolio
         </a>
       </p>
-    </>
+    </div>
   );
 }
